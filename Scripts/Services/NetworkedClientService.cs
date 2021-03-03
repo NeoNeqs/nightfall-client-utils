@@ -11,19 +11,27 @@ namespace ClientsUtils.Scripts.Services
         {
         }
 
-        public void CreateClient(string ipAddress, int port)
+        public Error CreateClient(string ipAddress, int port)
         {
-            _peer.CreateClient(ipAddress, port);
+            var creationError = _peer.CreateClient(ipAddress, port);
             base.Create();
+            return creationError;
         }
 
-        protected override void SetupDTLS(string path)
+        protected override Error SetupDTLS(string path)
         {
-            base.SetupDTLS(path);
-            Error error;
+            Error error = base.SetupDTLS(path);
+            if (error != Error.Ok)
+            {
+                return error;
+            }
 
-            _peer.SetDtlsCertificate(X509CertificateLoader.Load(path, "ag.crt", out error));
-            QuitIfError((int) error);
+            _peer.SetDtlsCertificate(X509CertificateLoader.Load(path, GetCertificateName(), out error));
+            if (error != Error.Ok)
+            {
+                return error;
+            }
+            return Error.Ok;
         }
     }
 }

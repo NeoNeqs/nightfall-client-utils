@@ -6,7 +6,9 @@ namespace ClientsUtils.Scripts.Logging
     {
         // one instance of LoggerFile for every Logger instance just in case
         private static BasicLogger _client;
-        public static BasicLogger GetLogger => _client;
+
+        public static BasicLogger GetLogger() => _client;
+        
 
         public ClientLogger() : base()
         {

@@ -1,5 +1,7 @@
 using Godot;
 
+using ClientsUtils.Scripts.Logging;
+
 using SharedUtils.Scripts.Common;
 using SharedUtils.Scripts.Exceptions;
 using SharedUtils.Scripts.Services;
@@ -33,7 +35,9 @@ namespace ClientsUtils.Scripts.Services
             _peer.SetDtlsCertificate(X509CertificateLoader.Load(path, GetCertificateName(), out error));
             if (error != ErrorCode.Ok)
             {
-                throw new X509CertificateNotFoundException(path);
+                var errorMessage = $"Failed to load x509 certificate from '{path.PlusFile(GetCryptoKeyName())}'";
+                ClientLogger.GetSingleton().Error(errorMessage);
+                throw new X509CertificateNotFoundException(errorMessage);
             }
         }
 

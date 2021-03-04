@@ -1,5 +1,7 @@
 using Godot;
 
+using SharedUtils.Scripts.Common;
+using SharedUtils.Scripts.Exceptions;
 using SharedUtils.Scripts.Services;
 using SharedUtils.Scripts.Loaders;
 
@@ -11,6 +13,11 @@ namespace ClientsUtils.Scripts.Services
         {
         }
 
+        public override void _EnterTree()
+        {
+            base._EnterTree();
+        }
+
         public Error CreateClient(string ipAddress, int port)
         {
             var creationError = _peer.CreateClient(ipAddress, port);
@@ -18,20 +25,27 @@ namespace ClientsUtils.Scripts.Services
             return creationError;
         }
 
-        protected override Error SetupDTLS(string path)
+        protected override void SetupDTLS(string path)
         {
-            Error error = base.SetupDTLS(path);
-            if (error != Error.Ok)
-            {
-                return error;
-            }
+            base.SetupDTLS(path);
 
+            ErrorCode error;
             _peer.SetDtlsCertificate(X509CertificateLoader.Load(path, GetCertificateName(), out error));
-            if (error != Error.Ok)
+            if (error != ErrorCode.Ok)
             {
-                return error;
+                throw new X509CertificateNotFoundException(path);
             }
-            return Error.Ok;
         }
+
+        protected override void ConnectSignals(NetworkedPeerService to)
+        {
+            GetTree().Connect("connection_failed", this, nameof(ConnetionFailed));
+            GetTree().Connect("connected_to_server", this, nameof(ConnectionSuccessful));
+            GetTree().Connect("server_disconnected", this, nameof(ServerDisconnected));
+        }
+
+        protected abstract void ConnetionFailed();
+        protected abstract void ConnectionSuccessful();
+        protected abstract void ServerDisconnected();
     }
 }

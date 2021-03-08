@@ -1,10 +1,10 @@
-using System;
+using SharedUtils.Exceptions;
 
-namespace ClientsUtils.Scripts.Exceptions
+namespace ClientsUtils.Exceptions
 {
-    public class CantConnectToServerException : Exception
+    public class CantConnectToServerException : NightFallException
     {
-        public CantConnectToServerException(string ipAddress, int port) : base($"Failed to connect to {ipAddress}:{port}")
+        public CantConnectToServerException(string message) : base(message)
         {
         }
     }

@@ -1,6 +1,6 @@
-using SharedUtils.Scripts.Configurations;
+using SharedUtils.Configurations;
 
-namespace ClientsUtils.Scripts.Configurations
+namespace ClientsUtils.Configurations
 {
     public abstract class StandartClientConfiguration : StandartConfiguration
     {

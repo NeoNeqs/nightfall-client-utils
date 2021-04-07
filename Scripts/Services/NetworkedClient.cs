@@ -25,7 +25,7 @@ namespace ClientsUtils.Services
         {
             var error = _peer.CreateClient(ipAddress, port);
             base.Create();
-            return (ErrorCode)((int)error);
+            return (ErrorCode)(int)error;
         }
 
         protected override void ConnectSignals()
@@ -37,7 +37,7 @@ namespace ClientsUtils.Services
 
         protected void Send(params object[] args)
         {
-            RpcId(1, "PacketReceived", args);
+            _ = RpcId(1, "PacketReceived", args);
         }
 
         protected abstract void _ConnectionFailed();

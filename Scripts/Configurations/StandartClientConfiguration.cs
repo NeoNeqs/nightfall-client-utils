@@ -1,8 +1,10 @@
+using Godot;
+
 using SharedUtils.Configurations;
 
 namespace ClientsUtils.Configurations
 {
-    public abstract class StandartClientConfiguration : StandartConfiguration
+    public abstract class StandartClientConfiguration<T> : StandartConfiguration<T> where T : Node
     {
         public string GetIpAddress(string defaultIpAddress)
         {

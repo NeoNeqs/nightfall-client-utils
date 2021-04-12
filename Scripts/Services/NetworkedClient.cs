@@ -1,47 +1,72 @@
 using Godot;
 
-using SharedUtils.Common;
 using SharedUtils.Services;
 using SharedUtils.Networking;
+using SharedUtils.Logging;
 
 namespace ClientsUtils.Services
 {
     public abstract class NetworkedClient<T> : NetworkedPeer<T> where T : Node
     {
-        protected NetworkedClient() : base() { }
-
-
-        public override void _EnterTree()
+        protected override void Create()
         {
-            base._EnterTree();
-            _ = SetupDTLS();
-        }
-
-        public override void _Ready() => base._Ready();
-
-        public override void _Process(float delta) => base._Process(delta);
-
-        public ErrorCode CreateClient(string ipAddress, int port)
-        {
-            var error = _peer.CreateClient(ipAddress, port);
-            base.Create();
-            return (ErrorCode)(int)error;
+            _ = _peer.CreateClient(GetIpAddress(), GetPort());
         }
 
         protected override void ConnectSignals()
         {
-            CustomMultiplayer.Connect("connection_failed", this, nameof(_ConnectionFailed));
-            CustomMultiplayer.Connect("connected_to_server", this, nameof(_ConnectionSuccessful));
-            CustomMultiplayer.Connect("server_disconnected", this, nameof(_ServerDisconnected));
+            CustomMultiplayer.Connect("connection_failed", this, nameof(ConnectionFailed));
+            CustomMultiplayer.Connect("connected_to_server", this, nameof(ConnectionSuccessful));
+            CustomMultiplayer.Connect("server_disconnected", this, nameof(ServerDisconnected));
         }
 
-        protected void Send(params object[] args)
+        private void Send(object[] args)
         {
-            _ = RpcId(1, "PacketReceived", args);
+            _ = RpcId(1, nameof(PacketReceived), args);
         }
 
-        protected abstract void _ConnectionFailed();
-        protected abstract void _ConnectionSuccessful();
-        protected abstract void _ServerDisconnected();
+        protected void Send(PacketType packetType, object arg1)
+        {
+            Send(new[] { packetType, arg1 });
+        }
+
+        protected void Send(PacketType packetType, object arg1, object arg2)
+        {
+            Send(new[] { packetType, arg1, arg2 });
+        }
+
+        protected void Send(PacketType packetType, object arg1, object arg2, object arg3)
+        {
+            Send(new[] { packetType, arg1, arg2, arg3 });
+        }
+
+        protected void Send(PacketType packetType, object arg1, object arg2, object arg3, object arg4)
+        {
+            Send(new[] { packetType, arg1, arg2, arg3, arg4 });
+        }
+
+        protected void Send(PacketType packetType, object arg1, object arg2, object arg3, object arg4, object arg5)
+        {
+            Send(new[] { packetType, arg1, arg2, arg3, arg4, arg5 });
+        }
+
+        protected virtual void ConnectionFailed()
+        {
+            Logger.Error($"Connection to {GetIpAddress()}:{GetPort()} failed!");
+            Reconnect();
+        }
+
+        protected virtual void ConnectionSuccessful()
+        {
+            Logger.Info($"Successfully conected to {GetIpAddress()}:{GetPort()}.");
+        }
+
+        protected virtual void ServerDisconnected()
+        {
+            Logger.Info($"Disconnected from {GetIpAddress()}:{GetPort()}.");
+            Reconnect();
+        }
+
+        protected abstract string GetIpAddress();
     }
 }

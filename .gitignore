@@ -1,0 +1,6 @@
+.godot/
+.idea/
+
+bin/
+
+*.import
